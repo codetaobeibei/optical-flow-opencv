@@ -39,22 +39,23 @@ void motionToColor(Mat flow, Mat &color)
         makecolorwheel(colorwheel);  
   
     // determine motion range:  
-    float maxrad = -1;  
+    // float maxrad = -1;  
   
     // Find max flow to normalize fx and fy  
-    for (int i= 0; i < flow.rows; ++i)   
-    {  
-        for (int j = 0; j < flow.cols; ++j)   
-        {  
-            Vec2f flow_at_point = flow.at<Vec2f>(i, j);  
-            float fx = flow_at_point[0];  
-            float fy = flow_at_point[1];  
-            if ((fabs(fx) >  UNKNOWN_FLOW_THRESH) || (fabs(fy) >  UNKNOWN_FLOW_THRESH))  
-                continue;  
-            float rad = sqrt(fx * fx + fy * fy);  
-            maxrad = maxrad > rad ? maxrad : rad;  
-        }  
-    }  
+    // for (int i= 0; i < flow.rows; ++i)   
+    // {  
+    //     for (int j = 0; j < flow.cols; ++j)   
+    //     {  
+    //         Vec2f flow_at_point = flow.at<Vec2f>(i, j);  
+    //         float fx = flow_at_point[0];  
+    //         float fy = flow_at_point[1];  
+    //         if ((fabs(fx) >  UNKNOWN_FLOW_THRESH) || (fabs(fy) >  UNKNOWN_FLOW_THRESH))  
+    //             continue;  
+    //         float rad = sqrt(fx * fx + fy * fy);  
+    //         maxrad = maxrad > rad ? maxrad : rad;  
+    //     }  
+    // }  
+    float maxrad = 100;
   
     for (int i= 0; i < flow.rows; ++i)   
     {  
