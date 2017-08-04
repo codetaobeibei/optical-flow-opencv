@@ -15,7 +15,7 @@ int main(int, char**)
     if( !cap.isOpened() )  
         return -1;  
   
-    vector <Point2f> prev_corner, cur_corner;
+    vector<Point2f> prev_corner;
     // vector <Point2f> prev_corner_good, cur_corner_good;
 
     Mat gray, prevgray, frame;
@@ -44,7 +44,19 @@ int main(int, char**)
     Mat motion2color; 
     RNG rng(12345);
     int line_thickness = 3;
+
+    cap >> frame;  
+    cvtColor(frame, prevgray, CV_BGR2GRAY);
+    goodFeaturesToTrack( prevgray, prev_corner, maxCorners, qualityLevel, minDistance); 
+    for( size_t i = 0; i < prev_corner.size(); i++ )
+    {
+        cv::circle( prevgray, prev_corner[i], 5, cv::Scalar( 255. ), -1 );
+    }
+    imshow("corners", prevgray);
+
+    Mat mask = Mat::zeros(frame.size(), frame.type());
   
+    vector<Point2f> cur_corner(prev_corner);
     for(;;)  
     {  
         double t = (double)cvGetTickCount();  
@@ -52,13 +64,9 @@ int main(int, char**)
         cap >> frame;  
         cvtColor(frame, gray, CV_BGR2GRAY);  
         imshow("original", frame);  
-  
-        cv::goodFeaturesToTrack( gray, cur_corner, maxCorners, qualityLevel, minDistance);
-        for( size_t i = 0; i < cur_corner.size(); i++ )
-        {
-            cv::circle( gray, cur_corner[i], 10, cv::Scalar( 255. ), -1 );
-        }
-        imshow("corners", gray);
+
+        vector<Point2f> temp_corner(cur_corner);
+
         if( prevgray.data )  
         {  
             vector <uchar> status;
@@ -68,22 +76,21 @@ int main(int, char**)
             for (size_t i = 0; i < status.size(); i++) {
 
                 if (status[i]) {
-                    line( frame, prev_corner[i], cur_corner[i], Scalar(rng.uniform(0,255), rng.uniform(0,255), rng.uniform(0,255)), line_thickness);
+                    line( mask, temp_corner[i], cur_corner[i], Scalar(rng.uniform(0,255), rng.uniform(0,255), rng.uniform(0,255)), line_thickness);
                     // prev_corner_good.push_back(prev_corner[i]);
                     // cur_corner_good.push_back(cur_corner[i]);
                 }
             }
             // motionToColor(flow, motion2color);  
             // imshow("flow", motion2color);
+            frame = frame + mask;
             imshow("flow", frame);
-        }  
+        }
         if(waitKey(30) == 27)
         {
             printf("exit");
             break;
         }
-        std::swap(prevgray, gray);
-        std::swap(prev_corner, cur_corner);
   
         t = (double)cvGetTickCount() - t;  
         cout << "cost time: " << t / ((double)cvGetTickFrequency()*1000.) << endl;  
