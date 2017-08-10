@@ -121,10 +121,24 @@ int main(int, char**)
         {  
             calcOpticalFlowFarneback(prevgray, gray, flow, 0.5, 3, 15, 3, 5, 1.2, 0);  
             motionToColor(flow, motion2color);  
+                        // By y += 5, x += 5 you can specify the grid 
+            for (int y = 0; y < frame.rows; y += 5) 
+            {
+                for (int x = 0; x < frame.cols; x += 5)
+                {
+                  // get the flow from y, x position * 10 for better visibility
+                    const Point2f flowatxy = flow.at<Point2f>(y, x) * 10;
+                             // draw line at flow direction
+                    line(frame, Point(x, y), Point(cvRound(x + flowatxy.x), cvRound(y + flowatxy.y)), Scalar(255,0,0));
+                                                                 // draw initial point
+                    circle(frame, Point(x, y), 1, Scalar(0, 0, 0), -1);
+                }
+            }
             imshow("flow", motion2color);
+            // imshow("flow vector", frame);
             // imshow("flow", flow);
         }  
-        if(waitKey(30) == 27)
+        if(waitKey(1) == 27)
         {
             printf("exit");
             break;

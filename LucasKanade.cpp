@@ -33,10 +33,13 @@ int main(int, char**)
   // For example, if the best corner has the quality measure = 1500,
   // and the qualityLevel=0.01 , then all the corners which quality measure is
   // less than 15 will be rejected.
-    double qualityLevel = 0.02;
+    double qualityLevel = 0.01;
 
   // minDistance – The minimum possible Euclidean distance between the returned corners
     double minDistance = 20.;
+
+    Size winSize = Size(15,15); 
+    int maxLevel = 3;
 
     namedWindow("corners", 1);
     namedWindow("flow", 1); 
@@ -71,7 +74,7 @@ int main(int, char**)
         {  
             vector <uchar> status;
             vector <float> err;
-            calcOpticalFlowPyrLK(prevgray, gray, prev_corner, cur_corner, status, err);
+            calcOpticalFlowPyrLK(prevgray, gray, prev_corner, cur_corner, status, err, winSize, maxLevel);
             // weed out bad matches
             for (size_t i = 0; i < status.size(); i++) {
 
@@ -86,10 +89,22 @@ int main(int, char**)
             frame = frame + mask;
             imshow("flow", frame);
         }
-        if(waitKey(30) == 27)
+        int key = waitKey(1);
+        if(key == 27)
         {
             printf("exit");
             break;
+        }
+        else if (key == 114)    // r for reset
+        {
+            cout << "reset corner" << endl;
+            mask = Mat::zeros(frame.size(), frame.type()); 
+            prev_corner.assign(cur_corner.begin(), cur_corner.end());
+            for( size_t i = 0; i < prev_corner.size(); i++ )
+            {
+                cv::circle( gray, prev_corner[i], 5, cv::Scalar( 255. ), -1 );
+            }
+            imshow("corners", gray);
         }
   
         t = (double)cvGetTickCount() - t;  
